@@ -1,41 +1,54 @@
 import { useState } from "react";
 import { createUseStyles } from "react-jss";
 import { useWebcamCapture } from "./useWebcamCapture";
-// import logo from './logo.svg'
-import logo from "./slap.png";
-
-import { Link, Switch, Route, Redirect } from "react-router-dom";
+import slap from "./slap.png"
+import slap2 from "./slap-2.png"
+import slap3 from "./slap-3.png"
+import { Switch, Route, Redirect } from "react-router-dom";
+import Navbar from './Navbar'
+import Readme from './Readme'
 
 const useStyles = createUseStyles((theme) => ({
   "@global body": {
     background: theme.palette.background,
     color: theme.palette.text,
-    fontFamily: "sans-serif",
+    fontFamily: "'Open Sans',sans-serif",
   },
 
   App: {
-    padding: "20px",
-    background: theme.palette.primary,
-    maxWidth: "800px",
+    padding: "30px",
+    maxWidth: "700px",
     minHeight: "600px",
-    margin: "auto",
+    background: "white",
+    borderRadius: "20px",
+    borderRight: "7px solid #e4edf8",
+    borderBottom: "10px solid #e4edf8",
+    margin: "40px auto",
+    boxShadow: "0 40px 90px rgba(0, 0, 0, 0.45)",
     "& a": {
       color: theme.palette.text,
     },
   },
   Header: {
+    paddingBottom: "10px",
     "&  h1": {
-      fontFamily: "sans-serif",
       cursor: "pointer",
+      fontWeight: "700",
       fontSize: "4rem",
+      color: theme.palette.header,
+      display: "inline-block",
+      margin: "0px",
+      padding: "0px",
+      textShadow: "1px 1px 1px #de6262, 1px 2px 1px #9e2929, 1px 3px 1px #9e2929, 1px 4px 1px #9e2929, 1px 5px 1px #9e2929,1px 6px 4px rgba(16,16,16,0.2), 1px 8px 7px rgba(16,16,16,0.2), 1px 11px 9px rgba(16,16,16,0.2)"
     },
   },
   Main: {
-    background: theme.palette.secondary,
-
     "& canvas": {
-      width: "100%",
+      width: "90%",
       height: "auto",
+      marginTop: "10px",
+      marginLeft: "25px",
+      borderRadius: "5px"
     },
     "& video": {
       display: "none",
@@ -44,31 +57,94 @@ const useStyles = createUseStyles((theme) => ({
   Stickers: {
     "& img": {
       height: "4rem",
-    },
+    }
   },
   Gallery: {
     "& img": {
       height: "16rem",
     },
+    "& input": {
+      display: "block",
+      width: "88%",
+      margin: "10px auto",
+      height: "40px",
+      borderRadius: "5px",
+      border: "1px solid #dadada",
+      paddingLeft: "15px",
+      color: theme.palette.text,
+    }
   },
   Picture: {
-    background: "black",
-    padding: 4,
+    background: theme.palette.header,
+    padding: 2,
     position: "relative",
     display: "inline-block",
+    width: "180px",
+    height: "auto",
+    marginRight: "15px",
+    marginBottom: "15px",
     "& h3": {
-      padding: 8,
-      textAlign: "center",
+      textAlign: "left",
       width: "100%",
+      paddingLeft: "5px",
+      margin: "0px",
+      color: "white",
+      fontWeight: "400",
+      fontSize: "1em"
     },
+    "& img": {
+      width: "180px",
+      height: "auto",
+    }
+  },
+  ButtonsContainer: {
+    marginLeft: "20px"
+    ,
+    "& button": {
+      margin: "10px",
+      borderRadius: "5px",
+      border: "1px solid #dadada",
+      background: "white"
+    },
+    "& button:hover": {
+      margin: "10px",
+      borderRadius: "5px",
+      border: "1px solid #dadada",
+      background: "#dadada"
+    }
+  },
+  StepsHeader: {
+    fontWeight: "400",
+    color: theme.palette.header
+  },
+  StepsContainer: {
+    margin: "auto",
+    with: "90%"
+  },
+  Step: {
+    backgroundColor: theme.palette.header,
+    display: "inline-block",
+    color: "white",
+    padding: "6px 10px",
+    textAlign: "center",
+    borderRadius: "50%",
+    fontWeight: "600",
+    marginRight: "10px",
+    borderRight: "1px solid #9e2929",
+    borderBottom: "3px solid #9e2929"
   },
 }));
 
-const stickers = [logo].map((url) => {
-  const img = document.createElement("img");
-  img.src = url;
-  return { img, url };
-});
+// array with sticker urls
+const stickerUrls = [slap2, slap, slap3]
+
+// function returns sticker objects for each sticker url in the stickerUrls array
+const stickers = stickerUrls.map((url) => {
+  let img = new Image()
+  img.src = url
+  return { img, url }
+})
+
 
 function App(props) {
   // css classes from JSS hook
@@ -78,6 +154,8 @@ function App(props) {
   // title for the picture that will be captured
   const [title, setTitle] = useState("SLAPPE!");
 
+  const [pictures, addPictures] = useState([]) //Array to store captured screens
+
   // webcam behavior hook
   const [
     handleVideoRef, // callback function to set ref for invisible video element
@@ -86,31 +164,30 @@ function App(props) {
     picture, // latest captured picture data object
   ] = useWebcamCapture(sticker?.img, title);
 
+
+  // Function adds new picture into pictures array.
+  const addToPicturesArray = () => {
+    if (picture) {
+      return addPictures((oldPictures) => [...oldPictures, picture])
+    }
+  }
+
   return (
     <div className={classes.App}>
       <header className={classes.Header}>
-        <h1>SlapSticker</h1>
-        <p>
-          Have you ever said something so dumb, you just wanted to slap
-          yourself? Well now you can!
-        </p>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">home</Link>
-            </li>
-            <li>
-              <Link to="/readme">readme</Link>
-            </li>
-          </ul>
-        </nav>
+        <h1>Slapp!</h1>
+        <Navbar />
       </header>
       <Switch>
         /** * Main app route */
         <Route path="/" exact>
           <main>
+            <p>
+              Have you ever said something so dumb, you just wanted to slap
+              yourself? Well now you can!
+            </p>
             <section className={classes.Gallery}>
-              Step one: Give it a name
+              <h3 className={classes.StepsHeader}><span className={classes.Step}>1</span> Give it a name</h3>
               <input
                 type="text"
                 value={title}
@@ -118,97 +195,50 @@ function App(props) {
               />
             </section>
             <section className={classes.Stickers}>
-              Step 2: select your sticker...
-              <button onClick={() => setSticker(stickers[0])}>
-                <img src={stickers[0].url} />
-              </button>
+              <h3 className={classes.StepsHeader}><span className={classes.Step}>2</span> Select your sticker</h3>
+              <div className={classes.ButtonsContainer}>
+                {
+                  // A button created for each sticker
+                  stickers.map((sticker) => {
+                    return <button key={sticker.url} onClick={() => setSticker(sticker)} ><img src={sticker.url} /></button>
+                  })
+                }
+              </div>
             </section>
+
             <section className={classes.Main}>
-              Step three: Slap your self!
+              <h3 className={classes.StepsHeader}><span className={classes.Step}>3</span> Slap your self!</h3>
               <video ref={handleVideoRef} />
               <canvas
                 ref={handleCanvasRef}
                 width={2}
                 height={2}
-                onClick={handleCapture}
+                onClick={() => { handleCapture(); addToPicturesArray() }}
+              // On Click addToPicturesArray function fired in addition to handleCapture.
+              // I think I also introduced a bug. On second click the right picture is added into the Pictures array
               />
             </section>
             <section className={classes.Gallery}>
-              Step 4: Cherish this moment forever
-              {picture && (
-                <div className={classes.Picture}>
-                  <img src={picture.dataUri} />
-                  <h3>{picture.title}</h3>
-                </div>
-              )}
+              <h3 className={classes.StepsHeader}><span className={classes.Step}>4</span>Cherish this moment forever</h3>
+              <div className={classes.StepsContainer}>
+                {
+                  // Each picture in pictures array shown under 4th step
+                  pictures.map((picture) => {
+                    return (
+                      <div key={picture.dataUri} className={classes.Picture}>
+                        <img src={picture.dataUri} />
+                        <h3>{picture.title}</h3>
+                      </div>
+                    )
+                  })
+                }
+              </div>
             </section>
           </main>
         </Route>
         /** * Readme route */
         <Route path="/readme">
-          <main>
-            <h2>Devtest Readme</h2>
-            <p>
-              Hello candidate, Welcome to our little dev test. The goal of this
-              exercise, is to asses your general skill level, and give us
-              something to talk about at our next appointment.
-            </p>
-            <section>
-              <h3>What this app should do</h3>
-              <p>
-                SlapSticker is an app that lets users to slap stickers on their
-                face, using their webcam. Functionality wise the app works, but
-                the ui needs some love. We'd like for you to extend this
-                prototype to make it look and feel it bit better.
-              </p>
-              <p>These are the basic requirements:</p>
-              <ul>
-                <li>User can pick a sticker</li>
-                <li>User can give the captured image a title</li>
-                <li>User can place the sticker over the webcam image</li>
-                <li>User can capture the webcam image with sticker</li>
-              </ul>
-            </section>
-            <section>
-              <h3>What we want you to do</h3>
-              <p>
-                Off course we didn't expect you to build a full fledged app in
-                such a short time frame. That's why the basic requirements are
-                already implemented.
-              </p>
-              <p>
-                However, we would like for you to show off your strengths as a
-                developer by improving the app.
-              </p>
-              <p>Some ideas (no need to do all):</p>
-              <ul>
-                <li>Make it look really nice</li>
-                <li>Let users pick from multiple (custom) stickers</li>
-                <li>Improve the workflow and ux</li>
-                <li>Show multiple captured images in a gallery</li>
-                <li>Let users download or share the captured pics</li>
-                <li>Add super cool effects to webcam feed</li>
-                <li>Organize, document and test the code</li>
-                <li>Integrate with zoom, teams, meet...</li>
-              </ul>
-            </section>
-            <section>
-              <h3> quickstart</h3>
-              <ul>
-                <li>You can clone this repo to get started </li>
-                <li>run `$ npm install` to install deps</li>
-                <li>run `$ npm run start` to start dev environment</li>
-                <li>push it to github or gitlab to share it with us. </li>
-              </ul>
-            </section>
-            <section>
-              <p>
-                P.s. We've already added some libraries to make your life easier
-                (Create React App, Jss, React Router), but feel free to add
-                more.
-              </p>
-            </section>
-          </main>
+          <Readme />
         </Route>
         <Redirect to="/" />
       </Switch>

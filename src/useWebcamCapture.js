@@ -4,6 +4,7 @@ export const useWebcamCapture = (stickerImg, title) => {
   const [videoRef, setVideoRef] = useState();
   const [canvasRef, setCanvasRef] = useState();
   const [picture, setPicture] = useState();
+  // const [pictures, addPictures] = useState([])
 
   const onVideoRef = useCallback((node) => {
     setVideoRef(node);
